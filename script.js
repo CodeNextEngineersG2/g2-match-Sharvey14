@@ -22,7 +22,7 @@ var spriteX, spriteY;
 var flipSound, matchSound, nopeSound, winSound, loseSound, bgMusic;
 
 // game variables
-var firstsprite, secondsprite;
+var firstChoice, secondChoice;
 var lives, matches;
 var spritesActive;
 
@@ -123,8 +123,9 @@ function preload() {
      addAnimations();
      shuffle(spriteArray, true);
      placeSprites();
-     spritesActive = true
-
+     spritesActive = true;
+     matches = 0;
+     lives = 5
  }
 
 
@@ -256,18 +257,19 @@ function createSprites () {
  }
 
  function activateSprite(s) {
-   s.onMousePressed = function(){
+   s.onMousePressed                                                              = function(){
      console.log("hello");
      if(spritesActive && s.animation.getFrame() !== s.animation.getLastFrame()){
-       if(firstsprite === undefined){
-         firstsprite = s;
+       if(firstChoice === undefined){
+         firstChoice = s;
          //flipped.play();
          s.animation.goToFrame(s.animation.getLastFrame());
        }
-       else if(s !== firstsprite){
-       secondsprite = s;
+       else if(s !== firstChoice){
+       secondChoice = s;
        //flipsound.play();
        s.animation.goToFrame(s.animation.getLastFrame());
+       checkMatch();
        }
      }
    }
@@ -286,13 +288,64 @@ function createSprites () {
  * locations to the player. Win or lose, the player is given the option to
  * reset and try again with a fresh shuffle.
  */
+ function checkMatch() {
+   var boltMatch = (firstChoice === boltSprite1 && secondChoice === boltSprite2) ||
+                   (firstChoice === boltSprite2 && secondChoice === boltSprite1)
+   var cloudMatch = (firstChoice === cloudSprite1 && secondChoice === cloudSprite2) ||
+                   (firstChoice === cloudSprite2 && secondChoice === cloudSprite1)
+   var sunMatch = (firstChoice === sunSprite1 && secondChoice === sunsprite2) ||
+                   (firstChoice === sunSprite2 && secondChoice === sunSprite1)
+   var moonMatch = (firstChoice === moonSprite1 && secondChoice === moonSprite2) ||
+                   (firstChoice === moonSprite2 && secondChoice === moonSprite1)
+   var smileyMatch = (firstChoice === smileySprite1 && secondChoice === smileySprite2) ||
+                   (firstChoice === smileySprite2 && secondChoice === smileySprite1)
+   var heartMatch = (firstChoice === heartSprite1 && secondChoice === heartSprite2) ||
+                   (firstChoice === heartSprite2 && secondChoice === heartSprite1)
+   if(boltMatch || cloudMatch || sunMatch || moonMatch || smileyMatch || heartMatch){
+     matches++;
+     if(matches === spriteArray.length / 2) {
+       alert ("YOU WIN! YOU ARE A BEAST.");
+       spriteActive = false;
+     }
+     else{
+       alert("match!");
+       firstChoice = undefined
+       secondChoice = undefined
+     }
+   }
+   else{
+     lives--;
+     spritesActive = false;
+     if(lives === 0) {
+       setTimeout(function() {
+         alert("Game Over!");
+         //flipALlSprites();
+       }, 2000);
+     }
+     else {
+       setTimeout(function() {
+         alert("No Match! Lives Left: " + lives);
+         firstChoice.animation.goToFrame(0);
+         secondChoice.animation.goToFrame(0);
+         firstChoice = undefined;
+         secondChoice = undefined;
+         spritesArray = true;
+       }, 2000);
+     }
+   }
+ }
 
 /*
  * function flipAllSprites()
  * Flips all sprites in spriteArray to their last animation frame (i.e.,
  * "face-up").
  */
-
+ function flipAllSprites() {
+   for(var i = 0; i < spriteArray.length; i++){
+     var lastFrame = spriteArray[i].animation.getLastFrame();
+     spriteArray[i].animation.GoToFrame(lastFrame);
+   }
+ }
  /*
   * function resetAllSprites()
   * Does exactly the opposite of the above function!
